@@ -1,5 +1,7 @@
 # N8N Morfeus
 
+**Versão n8n: 2.4.6** (Stable - Janeiro 2026)
+
 Instalação Docker do n8n com suporte completo a **Python 3** e **JavaScript**.
 
 ## Requisitos
@@ -222,6 +224,23 @@ Para uso em produção, recomenda-se:
 4. Usar PostgreSQL ao invés de SQLite
 
 5. Configurar backups automáticos
+
+## Atualização
+
+Para atualizar para uma nova versão do n8n:
+
+1. Edite o `Dockerfile` e altere a versão:
+   ```dockerfile
+   FROM docker.n8n.io/n8nio/n8n:NOVA_VERSAO
+   ```
+
+2. Reconstrua e reinicie:
+   ```bash
+   docker-compose down
+   docker-compose up -d --build
+   ```
+
+3. Verifique as [Release Notes](https://docs.n8n.io/release-notes/) para breaking changes.
 
 ## Licença
 

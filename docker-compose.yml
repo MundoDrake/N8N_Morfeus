@@ -1,3 +1,5 @@
+# N8N Morfeus - Docker Compose
+# Versão n8n: 2.4.6 (Stable - Janeiro 2026)
 version: '3.8'
 
 services:
@@ -5,6 +7,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # Ou use diretamente a imagem oficial (sem Python):
+    # image: docker.n8n.io/n8nio/n8n:2.4.6
     container_name: n8n_morfeus
     restart: unless-stopped
     ports:

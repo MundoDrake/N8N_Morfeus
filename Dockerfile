@@ -1,5 +1,6 @@
 # Dockerfile customizado para n8n com Python 3 e suporte completo a JavaScript
-FROM n8nio/n8n:latest
+# Versão: 2.4.6 (Stable - Janeiro 2026)
+FROM docker.n8n.io/n8nio/n8n:2.4.6
 
 USER root
 
