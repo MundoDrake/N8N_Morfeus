@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: n8n_morfeus
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      # Configurações Básicas
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Sao_Paulo}
+
+      # Banco de Dados (SQLite por padrão, pode usar PostgreSQL)
+      - DB_TYPE=${DB_TYPE:-sqlite}
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      # Descomente para usar PostgreSQL:
+      # - DB_TYPE=postgresdb
+      # - DB_POSTGRESDB_HOST=${DB_POSTGRESDB_HOST:-postgres}
+      # - DB_POSTGRESDB_PORT=${DB_POSTGRESDB_PORT:-5432}
+      # - DB_POSTGRESDB_DATABASE=${DB_POSTGRESDB_DATABASE:-n8n}
+      # - DB_POSTGRESDB_USER=${DB_POSTGRESDB_USER:-n8n}
+      # - DB_POSTGRESDB_PASSWORD=${DB_POSTGRESDB_PASSWORD}
+
+      # Segurança
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-admin123}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+
+      # Execuções
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=${EXECUTIONS_DATA_SAVE_ON_ERROR:-all}
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=${EXECUTIONS_DATA_SAVE_ON_SUCCESS:-all}
+      - EXECUTIONS_DATA_SAVE_ON_PROGRESS=${EXECUTIONS_DATA_SAVE_ON_PROGRESS:-true}
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=${EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS:-true}
+      - EXECUTIONS_DATA_PRUNE=${EXECUTIONS_DATA_PRUNE:-true}
+      - EXECUTIONS_DATA_MAX_AGE=${EXECUTIONS_DATA_MAX_AGE:-336}
+
+      # Nós e Funcionalidades
+      - N8N_NODES_INCLUDE=${N8N_NODES_INCLUDE:-}
+      - N8N_NODES_EXCLUDE=${N8N_NODES_EXCLUDE:-}
+      - NODE_FUNCTION_ALLOW_BUILTIN=${NODE_FUNCTION_ALLOW_BUILTIN:-*}
+      - NODE_FUNCTION_ALLOW_EXTERNAL=${NODE_FUNCTION_ALLOW_EXTERNAL:-*}
+
+      # Logs
+      - N8N_LOG_LEVEL=${N8N_LOG_LEVEL:-info}
+      - N8N_LOG_OUTPUT=${N8N_LOG_OUTPUT:-console}
+
+      # Python path
+      - PYTHON_PATH=/opt/venv/bin/python
+
+      # Permitir código customizado (Python e JavaScript)
+      - N8N_ALLOW_BUILTIN_MODULES=true
+      - N8N_NODE_OPTIONS=--max-old-space-size=4096
+
+      # Configurações de E-mail (SMTP)
+      - N8N_EMAIL_MODE=${N8N_EMAIL_MODE:-smtp}
+      - N8N_SMTP_HOST=${N8N_SMTP_HOST:-}
+      - N8N_SMTP_PORT=${N8N_SMTP_PORT:-587}
+      - N8N_SMTP_USER=${N8N_SMTP_USER:-}
+      - N8N_SMTP_PASS=${N8N_SMTP_PASS:-}
+      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER:-}
+      - N8N_SMTP_SSL=${N8N_SMTP_SSL:-false}
+
+    volumes:
+      # Persistência de dados do n8n
+      - n8n_data:/home/node/.n8n
+      # Pasta para arquivos compartilhados
+      - ./files:/files
+      # Pasta para scripts customizados
+      - ./scripts:/home/node/scripts
+    networks:
+      - n8n_network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # PostgreSQL (opcional - descomente se precisar)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: n8n_postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_USER=${DB_POSTGRESDB_USER:-n8n}
+  #     - POSTGRES_PASSWORD=${DB_POSTGRESDB_PASSWORD}
+  #     - POSTGRES_DB=${DB_POSTGRESDB_DATABASE:-n8n}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - n8n_network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DB_POSTGRESDB_USER:-n8n}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # Redis (opcional - para queue mode)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: n8n_redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - n8n_network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  n8n_data:
+    driver: local
+  # postgres_data:
+  #   driver: local
+  # redis_data:
+  #   driver: local
+
+networks:
+  n8n_network:
+    driver: bridge

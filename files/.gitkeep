@@ -1,0 +1,2 @@
+# Esta pasta é usada para arquivos compartilhados entre o host e o container
+# Coloque aqui arquivos que serão processados pelos workflows do n8n

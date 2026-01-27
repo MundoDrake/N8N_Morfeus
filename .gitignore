@@ -1,0 +1,74 @@
+# ================================================
+# N8N MORFEUS - GITIGNORE
+# ================================================
+
+# Arquivos de ambiente (contêm senhas e chaves)
+.env
+.env.local
+.env.*.local
+
+# Dados do n8n
+n8n_data/
+*.sqlite
+*.sqlite-journal
+
+# Arquivos de upload/download
+files/*
+!files/.gitkeep
+
+# Scripts locais (podem conter dados sensíveis)
+scripts/*
+!scripts/.gitkeep
+!scripts/examples/
+
+# Logs
+*.log
+logs/
+
+# Node.js
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Arquivos temporários
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backups
+*.bak
+*.backup
+backups/
+
+# Certificados SSL
+*.pem
+*.key
+*.crt
+*.cert
+
+# Credenciais
+credentials/
+secrets/
+*.credentials
